@@ -11,17 +11,21 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.examples.iotservice.IoTServiceGrpc;
-import io.grpc.examples.iotservice.LedMessage;
+import io.grpc.examples.iotservice.LedRequest;
+import io.grpc.examples.iotservice.LedReply;
 import io.grpc.examples.iotservice.TemperatureReply;
 import io.grpc.examples.iotservice.TemperatureRequest;
 
@@ -32,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private Button getTemperatureButton;
     private Button ledOnButton;
     private Button ledOffButton;
-
+    private Switch switch1;
+    private Switch switch2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +48,8 @@ public class MainActivity extends AppCompatActivity {
         hostEdit = (EditText) findViewById(R.id.host);
         portEdit = (EditText) findViewById(R.id.port);
         getTemperatureButton = (Button) findViewById(R.id.getTempButton);
-        ledOnButton = (Button) findViewById(R.id.ledOnButton);
-        ledOffButton = (Button) findViewById(R.id.ledOffButton);
-
+        switch1 = (Switch) findViewById(R.id.switch1);
+        switch2 = (Switch) findViewById(R.id.switch2);
     }
 
     public void sendTemperatureRequest(View view) {
@@ -105,21 +109,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void ledOnRequest(View view) {
-        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(hostEdit.getWindowToken(), 0);
-        ledOnButton.setEnabled(false);
-        new GrpcTask2(this).execute(hostEdit.getText().toString(), portEdit.getText().toString(), "1");
+    public void led1Request(View view) {
+        ledRequest("red", this.switch1.isChecked());
     }
 
-    public void ledOffRequest(View view) {
-        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(hostEdit.getWindowToken(), 0);
-        ledOffButton.setEnabled(false);
-        new GrpcTask2(this).execute(hostEdit.getText().toString(), portEdit.getText().toString(), "0");
+    public void led2Request(View view) {
+        ledRequest("green", this.switch2.isChecked());
     }
 
-    private static class GrpcTask2 extends AsyncTask<String, Void, String> {
+    private void ledRequest(String ledName, boolean on) {
+        new GrpcTask2(this).execute(hostEdit.getText().toString(), portEdit.getText().toString(),
+                on ? "1" : "0", ledName);
+
+    }
+
+    private static class GrpcTask2 extends AsyncTask<String, Void, Map<String, Integer>> {
         private final WeakReference<Activity> activityReference;
         private ManagedChannel channel;
 
@@ -129,46 +133,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected Map<String, Integer> doInBackground(String... params) {
 
             String host = params[0];
             String portStr = params[1];
             String ledState = params[2];
+            String ledName = params[3];
             int port = TextUtils.isEmpty(portStr) ? 0 : Integer.parseInt(portStr);
             try {
                 channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
                 IoTServiceGrpc.IoTServiceBlockingStub stub = IoTServiceGrpc.newBlockingStub(channel);
-                LedMessage request = LedMessage.newBuilder().setState(Integer.parseInt(ledState)).build();
-                LedMessage reply = stub.blinkLed(request);
-                return Integer.toString(reply.getState());
+                LedRequest request = LedRequest.newBuilder()
+                        .setState(Integer.parseInt(ledState))
+                        .setLedname(ledName)
+                        .build();
+                LedReply reply = stub.blinkLed(request);
+                return reply.getLedstateMap();
             } catch (Exception e) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
                 pw.flush();
-                return String.format("Failed... : %n%s", sw);
+                return null;
             }
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(Map<String, Integer> result) {
             try {
                 channel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
             Activity activity = activityReference.get();
-            if (activity == null) {
-                return;
+            if (activity != null && result != null) {
+                ((Switch) activity.findViewById(R.id.switch1))
+                        .setChecked(Integer.valueOf(1).equals(result.get("red")));
+                ((Switch) activity.findViewById(R.id.switch2))
+                        .setChecked(Integer.valueOf(1).equals(result.get("green")));
             }
-            if (result.equals("1")) {
-                Button ledOnButton = (Button) activity.findViewById(R.id.ledOnButton);
-                ledOnButton.setEnabled(true);
-            } else {
-                Button ledOffButton = (Button) activity.findViewById(R.id.ledOffButton);
-                ledOffButton.setEnabled(true);
-            }
-
         }
     }
 }
