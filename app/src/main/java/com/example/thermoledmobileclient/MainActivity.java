@@ -44,12 +44,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        temperatureResultText = (TextView) findViewById(R.id.textViewTemperature);
-        hostEdit = (EditText) findViewById(R.id.host);
-        portEdit = (EditText) findViewById(R.id.port);
-        getTemperatureButton = (Button) findViewById(R.id.getTempButton);
-        switch1 = (Switch) findViewById(R.id.switch1);
-        switch2 = (Switch) findViewById(R.id.switch2);
     }
 
     public void sendTemperatureRequest(View view) {
@@ -102,10 +96,6 @@ public class MainActivity extends AppCompatActivity {
             if (activity == null) {
                 return;
             }
-            TextView temperatureResultText = (TextView) activity.findViewById(R.id.textViewTemperature);
-            Button getTemperatureButton = (Button) activity.findViewById(R.id.getTempButton);
-            temperatureResultText.setText(result);
-            getTemperatureButton.setEnabled(true);
         }
     }
 
@@ -166,12 +156,6 @@ public class MainActivity extends AppCompatActivity {
                 Thread.currentThread().interrupt();
             }
             Activity activity = activityReference.get();
-            if (activity != null && result != null) {
-                ((Switch) activity.findViewById(R.id.switch1))
-                        .setChecked(Integer.valueOf(1).equals(result.get("red")));
-                ((Switch) activity.findViewById(R.id.switch2))
-                        .setChecked(Integer.valueOf(1).equals(result.get("green")));
-            }
         }
     }
 }
