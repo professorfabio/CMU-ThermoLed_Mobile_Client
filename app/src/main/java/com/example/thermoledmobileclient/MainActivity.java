@@ -1,6 +1,7 @@
 package com.example.thermoledmobileclient;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.collection.CircularArray;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,14 +37,23 @@ public class MainActivity extends AppCompatActivity {
     private Button getTemperatureButton;
     private Button ledOnButton;
     private Button ledOffButton;
-    private Switch switch1;
-    private Switch switch2;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String endereco = extras.getString("key");
+            String porta    = extras.getString("key2");
+            int    sessao   = extras.getInt("key3");
+
+            //TextView temperatureResultText = (TextView) findViewById(R.id.textView);
+            //temperatureResultText.setText( String.valueOf(sessao));
+        }
     }
 
     public void sendTemperatureRequest(View view) {
@@ -99,13 +109,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void led1Request(View view) {
-        ledRequest("red", this.switch1.isChecked());
-    }
 
-    public void led2Request(View view) {
-        ledRequest("green", this.switch2.isChecked());
-    }
+
+
 
     private void ledRequest(String ledName, boolean on) {
         new GrpcTask2(this).execute(hostEdit.getText().toString(), portEdit.getText().toString(),
