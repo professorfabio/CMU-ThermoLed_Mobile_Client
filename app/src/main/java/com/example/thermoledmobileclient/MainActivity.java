@@ -57,11 +57,10 @@ public class MainActivity extends AppCompatActivity {
             porta    = extras.getString("key2");
             sessao   = extras.getInt("key3");
 
-            editTextAmbiente = (EditText) findViewById(R.id.editTextTextPersonName2);
-            editTextAtributo = (EditText) findViewById(R.id.editTextTextPersonName3);
-            editTextParametro = (EditText) findViewById(R.id.editTextTextPersonName4);
-
-            executar = (Button) findViewById(R.id.button2);
+            editTextAmbiente    = (EditText) findViewById(R.id.editTextTextPersonName2);
+            editTextAtributo    = (EditText) findViewById(R.id.editTextTextPersonName3);
+            editTextParametro   = (EditText) findViewById(R.id.editTextTextPersonName4);
+            executar            = (Button) findViewById(R.id.button2);
 
             executar.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,18 +80,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-/*
-
-    public void sendTemperatureRequest(View view) {
+    public void executar(View view) {
         ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
                 .hideSoftInputFromWindow(hostEdit.getWindowToken(), 0);
-        getTemperatureButton.setEnabled(false);
-        temperatureResultText.setText("");
-        new GrpcTask(this).execute(hostEdit.getText().toString(), portEdit.getText().toString(), "sensor01");
+        executar.setEnabled(false);
+        new GrpcTask(this).execute(endereco, porta, String.valueOf(sessao),editTextAmbiente.getText().toString(),editTextAtributo.getText().toString(), editTextParametro.getText().toString(),"1");
     }
-
-
 
     private static class GrpcTask extends AsyncTask<String, Void, String> {
         private final WeakReference<Activity> activityReference;
@@ -106,16 +99,20 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
 
-            String host = params[0];
-            String portStr = params[1];
-            String sensorName = params[2];
-            int port = TextUtils.isEmpty(portStr) ? 0 : Integer.parseInt(portStr);
+            String endereco = params[0];
+            String porta = params[1];
+            String sessao = params[2];
+            String ambiente = params[3];
+            String atributo = params[4];
+            String parametro = params[5];
+
+            int port = TextUtils.isEmpty(porta) ? 0 : Integer.parseInt(porta);
             try {
-                channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+                channel = ManagedChannelBuilder.forAddress(endereco, port).usePlaintext().build();
                 IoTServiceGrpc.IoTServiceBlockingStub stub = IoTServiceGrpc.newBlockingStub(channel);
-                TemperatureRequest request = TemperatureRequest.newBuilder().setSensorName(sensorName).build();
-                TemperatureReply reply = stub.sayTemperature(request);
-                return reply.getTemperature();
+                AttributeRequest request = TemperatureRequest.newBuilder().setSensorName(sensorName).build();
+                AttributeReply reply = stub.CallAttribute(request);
+                return reply.getValue();
             } catch (Exception e) {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
@@ -123,9 +120,8 @@ public class MainActivity extends AppCompatActivity {
                 pw.flush();
                 return String.format("Failed... : %n%s", sw);
             }
-        }*/
+        }
 
-    /*
         @Override
         protected void onPostExecute(String result) {
             try {
@@ -139,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
+    /*
 
 
 

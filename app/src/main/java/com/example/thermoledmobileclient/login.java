@@ -35,8 +35,6 @@ public class login extends AppCompatActivity {
                 i.putExtra("key2", porta);
                 i.putExtra("key3",editTextSessao);
                 startActivity(i);
-
-
             }
         });
 
