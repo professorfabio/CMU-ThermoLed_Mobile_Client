@@ -5,6 +5,7 @@ import androidx.collection.CircularArray;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -37,8 +38,13 @@ public class MainActivity extends AppCompatActivity {
     private Button getTemperatureButton;
     private Button ledOnButton;
     private Button ledOffButton;
-
-
+    private String endereco;
+    private String porta;
+    private int    sessao;
+    private Button executar;
+    private EditText editTextAmbiente;
+    private EditText editTextAtributo;
+    private EditText editTextParametro;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +53,36 @@ public class MainActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String endereco = extras.getString("key");
-            String porta    = extras.getString("key2");
-            int    sessao   = extras.getInt("key3");
+            endereco = extras.getString("key");
+            porta    = extras.getString("key2");
+            sessao   = extras.getInt("key3");
 
-            //TextView temperatureResultText = (TextView) findViewById(R.id.textView);
-            //temperatureResultText.setText( String.valueOf(sessao));
+            editTextAmbiente = (EditText) findViewById(R.id.editTextTextPersonName2);
+            editTextAtributo = (EditText) findViewById(R.id.editTextTextPersonName3);
+            editTextParametro = (EditText) findViewById(R.id.editTextTextPersonName4);
+
+            executar = (Button) findViewById(R.id.button2);
+
+            executar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String ambiente  = editTextAmbiente.getText().toString();
+                    String atributo  = editTextAtributo.getText().toString();
+                    String parametro = editTextParametro.getText().toString();
+
+
+                    TextView temperatureResultText = (TextView) findViewById(R.id.textView);
+                    temperatureResultText.setText(ambiente);
+                }
+
+            });
+
+
         }
+
     }
+
+/*
 
     public void sendTemperatureRequest(View view) {
         ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
@@ -63,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         temperatureResultText.setText("");
         new GrpcTask(this).execute(hostEdit.getText().toString(), portEdit.getText().toString(), "sensor01");
     }
+
+
 
     private static class GrpcTask extends AsyncTask<String, Void, String> {
         private final WeakReference<Activity> activityReference;
@@ -93,8 +123,9 @@ public class MainActivity extends AppCompatActivity {
                 pw.flush();
                 return String.format("Failed... : %n%s", sw);
             }
-        }
+        }*/
 
+    /*
         @Override
         protected void onPostExecute(String result) {
             try {
@@ -164,4 +195,8 @@ public class MainActivity extends AppCompatActivity {
             Activity activity = activityReference.get();
         }
     }
+
+     */
 }
+
+
