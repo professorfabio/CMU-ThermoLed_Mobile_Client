@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.examples.iotservice.IoTServiceGrpc;
-import io.grpc.examples.iotservice.LedRequest;
-import io.grpc.examples.iotservice.LedReply;
+import io.grpc.examples.iotservice.AttributeRequest;
+import io.grpc.examples.iotservice.AttributeReply;
 import io.grpc.examples.iotservice.TemperatureReply;
 import io.grpc.examples.iotservice.TemperatureRequest;
 
@@ -110,7 +110,12 @@ public class MainActivity extends AppCompatActivity {
             try {
                 channel = ManagedChannelBuilder.forAddress(endereco, port).usePlaintext().build();
                 IoTServiceGrpc.IoTServiceBlockingStub stub = IoTServiceGrpc.newBlockingStub(channel);
-                AttributeRequest request = TemperatureRequest.newBuilder().setSensorName(sensorName).build();
+                AttributeRequest request = AttributeRequest.newBuilder()
+                        .setSession(Integer.parseInt(sessao))
+                        .setEnvironment(ambiente)
+                        .setAttribute(atributo)
+                        .setParameter(parametro)
+                        .build();
                 AttributeReply reply = stub.CallAttribute(request);
                 return reply.getValue();
             } catch (Exception e) {
