@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             editTextParametro   = (EditText) findViewById(R.id.editTextTextPersonName4);
             executar            = (Button) findViewById(R.id.button2);
 
+            /*
             executar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -69,14 +70,11 @@ public class MainActivity extends AppCompatActivity {
                     String atributo  = editTextAtributo.getText().toString();
                     String parametro = editTextParametro.getText().toString();
 
-
                     TextView temperatureResultText = (TextView) findViewById(R.id.textView);
                     temperatureResultText.setText(ambiente);
                 }
-
             });
-
-
+               */
         }
 
     }
@@ -116,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAttribute(atributo)
                         .setParameter(parametro)
                         .build();
-                AttributeReply reply = stub.CallAttribute(request);
+                AttributeReply reply = stub.callAttribute(request);
                 return reply.getValue();
             } catch (Exception e) {
                 StringWriter sw = new StringWriter();
