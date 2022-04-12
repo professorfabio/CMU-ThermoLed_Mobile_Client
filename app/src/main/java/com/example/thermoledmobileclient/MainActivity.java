@@ -33,11 +33,6 @@ import io.grpc.examples.iotservice.TemperatureRequest;
 
 public class MainActivity extends AppCompatActivity {
     private TextView temperatureResultText;
-    private EditText hostEdit;
-    private EditText portEdit;
-    private Button getTemperatureButton;
-    private Button ledOnButton;
-    private Button ledOffButton;
     private String endereco;
     private String porta;
     private int    sessao;
@@ -53,35 +48,23 @@ public class MainActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            int aux;
             endereco = extras.getString("key");
             porta    = extras.getString("key2");
             sessao   = extras.getInt("key3");
+
+            aux = Integer.parseInt(porta) + 1;
+            porta = String.valueOf(aux);
 
             editTextAmbiente    = (EditText) findViewById(R.id.editTextTextPersonName2);
             editTextAtributo    = (EditText) findViewById(R.id.editTextTextPersonName3);
             editTextParametro   = (EditText) findViewById(R.id.editTextTextPersonName4);
             executar            = (Button) findViewById(R.id.button2);
 
-            /*
-            executar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String ambiente  = editTextAmbiente.getText().toString();
-                    String atributo  = editTextAtributo.getText().toString();
-                    String parametro = editTextParametro.getText().toString();
-
-                    TextView temperatureResultText = (TextView) findViewById(R.id.textView);
-                    temperatureResultText.setText(ambiente);
-                }
-            });
-               */
         }
 
     }
     public void executar(View view) {
-        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(hostEdit.getWindowToken(), 0);
-        executar.setEnabled(false);
         new GrpcTask(this).execute(endereco, porta, String.valueOf(sessao),editTextAmbiente.getText().toString(),editTextAtributo.getText().toString(), editTextParametro.getText().toString(),"1");
     }
 
@@ -136,66 +119,13 @@ public class MainActivity extends AppCompatActivity {
             if (activity == null) {
                 return;
             }
-        }
-    }
-    /*
 
+            TextView temperatureResultText = (TextView) activity.findViewById(R.id.textView);
+            temperatureResultText.setText(result);
 
-
-
-    private void ledRequest(String ledName, boolean on) {
-        new GrpcTask2(this).execute(hostEdit.getText().toString(), portEdit.getText().toString(),
-                on ? "1" : "0", ledName);
-
-    }
-
-    private static class GrpcTask2 extends AsyncTask<String, Void, Map<String, Integer>> {
-        private final WeakReference<Activity> activityReference;
-        private ManagedChannel channel;
-
-
-        private GrpcTask2(Activity activity) {
-            this.activityReference = new WeakReference<Activity>(activity);
-        }
-
-        @Override
-        protected Map<String, Integer> doInBackground(String... params) {
-
-            String host = params[0];
-            String portStr = params[1];
-            String ledState = params[2];
-            String ledName = params[3];
-            int port = TextUtils.isEmpty(portStr) ? 0 : Integer.parseInt(portStr);
-            try {
-                channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
-                IoTServiceGrpc.IoTServiceBlockingStub stub = IoTServiceGrpc.newBlockingStub(channel);
-                LedRequest request = LedRequest.newBuilder()
-                        .setState(Integer.parseInt(ledState))
-                        .setLedname(ledName)
-                        .build();
-                LedReply reply = stub.blinkLed(request);
-                return reply.getLedstateMap();
-            } catch (Exception e) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-                pw.flush();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, Integer> result) {
-            try {
-                channel.shutdown().awaitTermination(1, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            Activity activity = activityReference.get();
         }
     }
 
-     */
 }
 
 

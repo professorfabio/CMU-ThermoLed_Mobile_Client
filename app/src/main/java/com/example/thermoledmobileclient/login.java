@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,11 +28,12 @@ import io.grpc.examples.idprovider.LoginReply;
 public class login extends AppCompatActivity {
 
     Button login;
-    EditText editTextEndereco;
-    EditText editTextPorta;
+    public EditText editTextEndereco;
+    public EditText editTextPorta;
     EditText editTextUsuario;
     EditText editTextPassword;
-    int Sessao;
+    static int Sessao = 0;
+    TextView resultado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,38 +45,17 @@ public class login extends AppCompatActivity {
         editTextUsuario     = (EditText) findViewById(R.id.editTextTextEmailAddress);
         editTextPassword     = (EditText) findViewById(R.id.editTextTextPassword);
         login                  = (Button) findViewById(R.id.button);
-        /*
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String endereco = editTextEndereco.getText().toString();
-                String porta = editTextPorta.getText().toString();
-                Intent i = new Intent(login.this, MainActivity.class);
-                i.putExtra("key", endereco);
-                i.putExtra("key2", porta);
-                i.putExtra("key3",editTextSessao);
-                startActivity(i);
-            }
-        });
-         */
     }
 
     public void login(View view) {
         String endereco = editTextEndereco.getText().toString();
         String porta = editTextPorta.getText().toString();
-        ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(editTextEndereco.getWindowToken(), 0);
-        login.setEnabled(false);
+
         new login.GrpcTask(this).execute(endereco, porta,editTextUsuario.getText().toString(),editTextPassword.getText().toString(),"1");
 
-        Intent i = new Intent(login.this, MainActivity.class);
-        i.putExtra("key", endereco);
-        i.putExtra("key2", porta);
-        i.putExtra("key3",Sessao);
-        startActivity(i);
     }
 
-    private static class GrpcTask extends AsyncTask<String, Void, String> {
+    private class GrpcTask extends AsyncTask<String, Void, String> {
         private final WeakReference<Activity> activityReference;
         private ManagedChannel channel;
 
@@ -121,6 +102,29 @@ public class login extends AppCompatActivity {
             if (activity == null) {
                 return;
             }
+
+            Button login = (Button) activity.findViewById(R.id.button);
+            EditText editTextEndereco    = (EditText) activity.findViewById(R.id.editTextTextPersonName5);
+            EditText editTextPorta       = (EditText) activity.findViewById(R.id.editTextTextPersonName);
+
+            String endereco = editTextEndereco.getText().toString();
+            String porta = editTextPorta.getText().toString();
+            Sessao = Integer.parseInt(result);
+
+
+            if(Sessao != 0)
+            {
+                Intent i = new Intent(activity, MainActivity.class);
+                i.putExtra("key", endereco);
+                i.putExtra("key2", porta);
+                i.putExtra("key3",Sessao);
+                startActivity(i);
+            }else
+            {
+                TextView resultado = (TextView) activity.findViewById(R.id.textView2);
+                resultado.setText("Erro");
+            }
+
         }
     }
 }
